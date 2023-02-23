@@ -1,4 +1,6 @@
-﻿using Application.Interfaces;
+﻿using System.Text.Json;
+
+using Application.Interfaces;
 
 using Domain.DTOs.Requests;
 using Domain.DTOs.Responses;
@@ -13,22 +15,32 @@ namespace Application.Services;
 public class UsuarioService : IUsuarioService
 {
     private readonly PostgresContext _context;
+    private readonly IRabbitMQProducer _producer;
 
-    public UsuarioService(PostgresContext context)
+    public UsuarioService(PostgresContext context, IRabbitMQProducer producer)
     {
         _context = context;
+        _producer = producer;
     }
 
-    public async Task<List<Usuario>> Read()
+    public async Task<AllUsersResponseDto> Read()
     {
         try
         {
             var usuarios = await _context.Usuarios.ToListAsync();
-            return usuarios;
+            return new AllUsersResponseDto
+            {
+                Status = true,
+                Usuarios = usuarios
+            };
         }
         catch (Exception ex)
         {
-            return new List<Usuario>();
+            return new AllUsersResponseDto
+            {
+                Status = false,
+                Usuarios = new List<Usuario>()
+            };
         }
     }
 
@@ -71,8 +83,18 @@ public class UsuarioService : IUsuarioService
                     Id = id
                 });
 
+                var message = new AuditoriaMessageDto
+                {
+                    Content = JsonSerializer.Serialize(dto),
+                    Date = DateTime.UtcNow,
+                    Method = "POST"
+                };
+
+                _producer.SendAuditMessage(message);
+
                 await _context.SaveChangesAsync();
                 await _context.Database.CommitTransactionAsync();
+
                 return true;
             }
             catch (Exception ex)
@@ -99,6 +121,15 @@ public class UsuarioService : IUsuarioService
                 usuario.Id = dto.Id;
 
                 var response = _context.Usuarios.Update(usuario);
+
+                var message = new AuditoriaMessageDto
+                {
+                    Content = JsonSerializer.Serialize(dto),
+                    Date = DateTime.UtcNow,
+                    Method = "PUT"
+                };
+
+                _producer.SendAuditMessage(message);
 
                 await _context.SaveChangesAsync();
                 await _context.Database.CommitTransactionAsync();
@@ -133,6 +164,18 @@ public class UsuarioService : IUsuarioService
                     throw new Exception();
 
                 var response = _context.Usuarios.Remove(usuario);
+
+                var message = new AuditoriaMessageDto
+                {
+                    Content = JsonSerializer.Serialize(id),
+                    Date = DateTime.UtcNow,
+                    Method = "DELETE"
+                };
+
+                _producer.SendAuditMessage(message);
+
+                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
 
                 return true;
             }

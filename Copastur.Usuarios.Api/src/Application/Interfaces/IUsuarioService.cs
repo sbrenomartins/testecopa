@@ -8,7 +8,7 @@ namespace Application.Interfaces;
 
 public interface IUsuarioService
 {
-    Task<List<Usuario>> Read();
+    Task<AllUsersResponseDto> Read();
     Task<UserResponseDto> Read(Guid id);
     Task<bool> Create(CreateUserDto usuario);
     Task<UserResponseDto> Update(UpdateUserDto usuario);

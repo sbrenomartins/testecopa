@@ -8,6 +8,10 @@
     <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Contexts\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

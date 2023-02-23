@@ -1,6 +1,16 @@
+using Application.Interfaces;
+using Application.Services;
+
+using Infra.Settings;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<AuditoriaSettings>(
+    builder.Configuration.GetSection("ConnectionStrings:Mongo"));
+
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
+builder.Services.AddScoped<IRabbitMQConsumer, RabbitMQConsumer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

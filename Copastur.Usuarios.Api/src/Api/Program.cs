@@ -1,18 +1,16 @@
 using Application.Interfaces;
 using Application.Services;
-
 using Infra.Contexts;
-
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 string connectionString = builder.Configuration.GetConnectionString("PgDatabase");
-builder.Services.AddDbContext<PostgresContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<PostgresContext>(options => options.UseNpgsql(connectionString, b => b.MigrationsAssembly("Api")));
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

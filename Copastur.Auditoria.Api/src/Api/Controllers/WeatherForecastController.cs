@@ -1,3 +1,5 @@
+using Application.Interfaces;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -12,10 +14,12 @@ public class WeatherForecastController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly IRabbitMQConsumer _consumer;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, IRabbitMQConsumer consumer)
     {
         _logger = logger;
+        _consumer = consumer;
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
@@ -28,5 +32,12 @@ public class WeatherForecastController : ControllerBase
             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
         })
         .ToArray();
+    }
+
+    [HttpGet("test")]
+    public async Task<IActionResult> Test()
+    {
+        var response = await _consumer.ReceiveAuditMessage();
+        return Ok();
     }
 }
