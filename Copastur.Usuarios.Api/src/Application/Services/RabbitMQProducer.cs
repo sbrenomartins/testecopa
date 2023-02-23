@@ -30,7 +30,7 @@ public class RabbitMQProducer : IRabbitMQProducer
             using (var channel = connection.CreateModel())
             {
 
-                channel.QueueDeclare("auditoria", exclusive: false);
+                channel.QueueDeclare("auditoria", exclusive: false, autoDelete: false);
                 var json = JsonSerializer.Serialize(message);
                 var body = Encoding.UTF8.GetBytes(json);
                 channel.BasicPublish(exchange: "", routingKey: "auditoria", body: body);

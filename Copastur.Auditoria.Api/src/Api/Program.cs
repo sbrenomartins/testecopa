@@ -10,7 +10,7 @@ builder.Services.Configure<AuditoriaSettings>(
     builder.Configuration.GetSection("ConnectionStrings:Mongo"));
 
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
-builder.Services.AddScoped<IRabbitMQConsumer, RabbitMQConsumer>();
+builder.Services.AddHostedService<RabbitMQConsumer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
