@@ -11,19 +11,22 @@ using Infra.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
+namespace Tests;
 
-namespace Tests
+public class UsuarioTest
 {
-    public class UsuarioTest
-    {
-        [Fact]
-        public async void Get_OnSuccess_ReturnsStatusCode_200()
-        {
-            var mockService = new Mock<IUsuarioService>();
-            var cont = new UsuarioController(mockService.Object);
-            var result = (OkObjectResult)await cont.Get();
 
-            Assert.Equal(result.StatusCode, 200);
-        }
+    [Fact]
+    public async void Get_OnError_ReturnsStatus_False()
+    {
+        DbContextOptions<PostgresContext> options = new DbContextOptions<PostgresContext>();
+        var context = new PostgresContext(options);
+        var configuration = new Mock<IConfiguration>();
+        var producer = new RabbitMQProducer(configuration.Object);
+        var service = new UsuarioService(context, producer);
+
+        var response = await service.Read();
+
+        Assert.Equal("False", response.Status.ToString());
     }
 }
