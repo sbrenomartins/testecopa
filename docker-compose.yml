@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  postgres:
+    container_name: copastur_pg_usuarios
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+
+  rabbitmq:
+    container_name: copastur_queue
+    image: rabbitmq:3.8-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      # AMQP protocol port
+      - "5672:5672"
+      # HTTP management UI
+      - "15672:15672"
+
+  mongo:
+    container_name: copastur_auditoria
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_DATABASE: copastur_auditoria
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    ports:
+      - "27017:27017"
